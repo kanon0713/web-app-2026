@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const { Pool } = require('pg');
 
@@ -6,6 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.static('public'));
+
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -15,9 +17,13 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
+app.get('/', (req, res) => {
+  res.send('トップページです');
+});
+
 app.get('/api/messages', async (req, res) => {
   const result = await pool.query(
-    'SELECT * FROM message ORDER BY created_at ASC'
+    'SELECT * FROM messages ORDER BY created_at ASC'
   );
 
   res.json(result.rows);
@@ -27,7 +33,7 @@ app.post('/api/messages', async (req, res) => {
   const { username, text } = req.body;
 
   const result = await pool.query(
-    'INSERT INTO message (username, text) VALUES ($1, $2) RETURNING *',
+    'INSERT INTO messages (username, text) VALUES ($1, $2) RETURNING *',
     [username, text]
   );
 
